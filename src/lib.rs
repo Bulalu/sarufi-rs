@@ -6,7 +6,8 @@ use serde::de::DeserializeOwned;
 
 pub use errors::ApiError;
 pub use bot::Bot;
-
+use serde_json::{json, Map, Value};
+use std::collections::HashMap;
 
 mod errors;
 mod utils;
@@ -18,9 +19,11 @@ use crate::api::SarufiApiError;
 
 
 /// API struct. Exposes function to interact with the Sarufi API 🥷
+/// #[derive(Debug, Serialize, Deserialize)]
 pub struct SarufiAPI {
     client: Client,
 }
+
 
 impl SarufiAPI {
     /// Creates a new instance of SarufiAPI using the provided api key
@@ -51,6 +54,34 @@ impl SarufiAPI {
             
         }
 
+        /// Creates a new bot
+        pub async fn create_bot(&self, 
+            name: &str,
+            description: Option<&str>,
+            industry: Option<&str>,
+            flow: Option<HashMap<String, Value>>,
+            intents: Option<HashMap<String, Vec<String>>>,
+            webhook_url: Option<&str>,
+            webhook_trigger_intents: Option<Vec<String>>,
+            visible_on_community: Option<bool>) -> Result<Bot, ApiError> {
+
+            let url = utils::api_url("/chatbot");
+            let mut payload = Map::new();
+            payload.insert("name".to_string(), json!(name));
+            payload.insert("description".to_string(), json!(description));
+            payload.insert("industry".to_string(), json!(industry));
+            payload.insert("flow".to_string(), json!(flow));
+            payload.insert("intents".to_string(), json!(intents));
+            payload.insert("webhook_url".to_string(), json!(webhook_url));
+            payload.insert("webhook_trigger_intents".to_string(), json!(webhook_trigger_intents));
+            payload.insert("visible_on_community".to_string(), json!(visible_on_community));
+
+            let response = self.client.post(&url).json(&payload).send().await?;
+            self.parse_result(response).await?
+
+           
+        }
+
         async fn parse_result<R>(&self, response: Response) -> Result<R, ApiError> 
             where R: DeserializeOwned
           {
@@ -73,12 +104,10 @@ impl SarufiAPI {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_api_url() {
-        let api = SarufiAPI::new("af88e925a9c16f42e4da4d2d6b7b13ac619aaa5477066d6ae933dd057c0e08ea").unwrap();
-        let bot = api.get_bot(1045);
+    #[tokio::test]
+    async fn test_api_url() {
+        let api = SarufiAPI::new("").unwrap();
+        let bot = api.get_bot(1045).await.unwrap();
         println!("Result: {:?}", bot);
-       
     }
-
 }
