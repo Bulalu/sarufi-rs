@@ -1,11 +1,21 @@
+#[cfg_attr(test, macro_use)]
+extern crate log;
+
 use reqwest::{Client, ClientBuilder, header::HeaderMap, Response};
+use serde::de::DeserializeOwned;
 
 pub use errors::ApiError;
+pub use bot::Bot;
 use dotenv::dotenv;
 use std::env;
 
 mod errors;
 mod utils;
+mod api;
+mod bot;
+
+use crate::api::SarufiApiError;
+
 
 
 /// API struct. Exposes function to interact with the Sarufi API 🥷
@@ -31,13 +41,33 @@ impl SarufiAPI {
         Ok(SarufiAPI { client })
     }
 
-    /// Returns a list of all bots created by the user
-    pub fn get_bots(&self) -> Result<Response, ApiError> {
-        let url = utils::api_url("/bots");
-        let resp = self.client.get(&url).send()?;
-        Ok(resp)
-    }
+        /// Returns a bot object for the given id
+        pub async fn get_bot(&self, id: usize) -> Result<Bot, ApiError> {
+            let url = utils::api_url(&format!("/chatbot/{}", id));
+            let response = self.client.get(&url).send().await?;
+            
+            self.parse_result(response).await?
+            
+            
+        }
+
+   
+
+        async fn parse_result<R>(&self, response: Response) -> Result<R, ApiError> 
+            where R: DeserializeOwned
+          {
+            if response.status().is_success() {
+              let result = response.json::<R>().await?;
+              Ok(result)
+            } else {
+              let error = response.json::<SarufiApiError>().await?;
+              Err(ApiError::GenericError(error.message()))
+            }
+          }
+
 }
+
+    
 
 
 
