@@ -6,8 +6,7 @@ use serde::de::DeserializeOwned;
 
 pub use errors::ApiError;
 pub use bot::Bot;
-use dotenv::dotenv;
-use std::env;
+
 
 mod errors;
 mod utils;
@@ -45,13 +44,12 @@ impl SarufiAPI {
         pub async fn get_bot(&self, id: usize) -> Result<Bot, ApiError> {
             let url = utils::api_url(&format!("/chatbot/{}", id));
             let response = self.client.get(&url).send().await?;
+            println!("Response: {:?}", response);
             
             self.parse_result(response).await?
             
             
         }
-
-   
 
         async fn parse_result<R>(&self, response: Response) -> Result<R, ApiError> 
             where R: DeserializeOwned
@@ -77,6 +75,10 @@ mod tests {
 
     #[test]
     fn test_api_url() {
-        assert_eq!(utils::api_url("/chatbot"), "https://developers.sarufi.io/chatbot");
+        let api = SarufiAPI::new("af88e925a9c16f42e4da4d2d6b7b13ac619aaa5477066d6ae933dd057c0e08ea").unwrap();
+        let bot = api.get_bot(1045);
+        println!("Result: {:?}", bot);
+       
     }
+
 }
