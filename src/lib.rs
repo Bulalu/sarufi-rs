@@ -66,18 +66,67 @@ impl SarufiAPI {
             visible_on_community: Option<bool>) -> Result<Bot, ApiError> {
 
             let url = utils::api_url("/chatbot");
-            let mut payload = Map::new();
-            payload.insert("name".to_string(), json!(name));
-            payload.insert("description".to_string(), json!(description));
-            payload.insert("industry".to_string(), json!(industry));
-            payload.insert("flow".to_string(), json!(flow));
-            payload.insert("intents".to_string(), json!(intents));
-            payload.insert("webhook_url".to_string(), json!(webhook_url));
-            payload.insert("webhook_trigger_intents".to_string(), json!(webhook_trigger_intents));
-            payload.insert("visible_on_community".to_string(), json!(visible_on_community));
+            // println!("URL: {:?}", url);
+            // let mut payload = Map::new();
+            // payload.insert("name".to_string(), json!(name));
+            // payload.insert("description".to_string(), json!(description));
+            // payload.insert("industry".to_string(), json!(industry));
+            // payload.insert("flow".to_string(), json!(flow));
+            // payload.insert("intents".to_string(), json!(intents));
+            // payload.insert("webhook_url".to_string(), json!(webhook_url));
+            // payload.insert("webhook_trigger_intents".to_string(), json!(webhook_trigger_intents));
+            // payload.insert("visible_on_community".to_string(), json!(visible_on_community));
 
-            let response = self.client.post(&url).json(&payload).send().await?;
+            let mut data = HashMap::new();
+
+            data.insert("name".to_owned(), Value::String(name.to_owned()));
+    
+            if let Some(description) = description {
+                data.insert("description".to_owned(), Value::String(description.to_owned()));
+            }
+        
+            if let Some(industry) = industry {
+                data.insert("industry".to_owned(), Value::String(industry.to_owned()));
+            }
+        
+            if let Some(flow) = flow {
+                data.insert("flow".to_owned(), Value::Object(flow.into_iter().collect()));
+            }
+        
+            if let Some(intents) = intents {
+                data.insert(
+                    "intents".to_owned(),
+                    Value::Object(
+                        intents
+                            .into_iter()
+                            .map(|(k, v)| (k, Value::Array(v.into_iter().map(Value::String).collect())))
+                            .collect(),
+                    ),
+                );
+            }
+        
+            if let Some(webhook_url) = webhook_url {
+                data.insert("webhook_url".to_owned(), Value::String(webhook_url.to_owned()));
+            }
+        
+            if let Some(webhook_trigger_intents) = webhook_trigger_intents {
+                data.insert(
+                    "webhook_trigger_intents".to_owned(),
+                    Value::Array(webhook_trigger_intents.into_iter().map(Value::String).collect()),
+                );
+            }
+
+            if let Some(visible_on_community) = visible_on_community {
+                data.insert("visible_on_community".to_owned(), Value::Bool(visible_on_community));
+            }
+        
+            // println!("Payload: {:?}", payload);
+
+            let response = self.client.post(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
+            // println!("Response: {:?}", response);
             self.parse_result(response).await?
+            
+
 
            
         }
@@ -97,9 +146,6 @@ impl SarufiAPI {
 }
 
     
-
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -110,4 +156,58 @@ mod tests {
         let bot = api.get_bot(1045).await.unwrap();
         println!("Result: {:?}", bot);
     }
+
+    #[tokio::test]
+    async fn test_create_bot() -> Result<(), ApiError> {
+        // let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
+        let api = SarufiAPI::new("af88e925a9c16f42e4da4d2d6b7b13ac619aaa5477066d6ae933dd057c0e08ea").unwrap();
+  
+        let name = "My Rusty Chatbot";
+        let description = Some("A rusty chatbot created using Sarufi API");
+        let industry = Some("Technology");
+        let flow: Option<HashMap<String, Value>> = None;
+        let intents: Option<HashMap<String, Vec<String>>> = None;
+        let webhook_url = Some("https://example.com/webhook");
+        let webhook_trigger_intents: Option<Vec<String>> = None;
+        let visible_on_community = Some(true);  
+
+        let bot = api.create_bot(
+                name,
+                description,
+                industry,
+                flow,
+                intents,
+                webhook_url,
+                webhook_trigger_intents,
+                visible_on_community,
+        ).await?;  
+
+        println!("Result: {:?}", bot);
+
+        Ok(())
+
+       
+    }
 }
+
+
+      // let mut flow = HashMap::new();
+        // flow.insert("start".to_owned(), Value::String("Hello".to_owned()));
+        // flow.insert("end".to_owned(), Value::String("Bye".to_owned()));
+
+        // let mut intents = HashMap::new();
+        // intents.insert("greeting".to_owned(), vec!["hi".to_owned(), "hello".to_owned()]);
+        // intents.insert("goodbye".to_owned(), vec!["bye".to_owned(), "goodbye".to_owned()]);
+
+        // let webhook_trigger_intents = vec!["greeting".to_owned(), "goodbye".to_owned()];
+
+        // let bot = api.create_bot(
+        //     "Test Bot",
+        //     Some("This is a test bot"),
+        //     Some("Test Industry"),
+        //     Some(flow),
+        //     Some(intents),
+        //     Some("http://example.com/webhook"),
+        //     Some(webhook_trigger_intents),
+        //     Some(true),
+        // ).await?;
