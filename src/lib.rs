@@ -8,6 +8,8 @@ pub use errors::ApiError;
 pub use bot::Bot;
 use serde_json::{json, Map, Value};
 use std::collections::HashMap;
+use dotenv::dotenv;
+
 
 mod errors;
 mod utils;
@@ -124,7 +126,15 @@ impl SarufiAPI {
 
             let response = self.client.post(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
             // println!("Response: {:?}", response);
-            self.parse_result(response).await?
+            // self.parse_result(response).await?
+
+            if response.status().is_success() {
+                let result = response.json::<Bot>().await?;
+                Ok(result)
+            } else {
+                let error = response.json::<SarufiApiError>().await?;
+                Err(ApiError::GenericError(error.message()))
+            }
             
 
 
@@ -135,6 +145,7 @@ impl SarufiAPI {
             where R: DeserializeOwned
           {
             if response.status().is_success() {
+                
               let result = response.json::<R>().await?;
               Ok(result)
             } else {
@@ -159,8 +170,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_bot() -> Result<(), ApiError> {
-        // let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        let api = SarufiAPI::new("af88e925a9c16f42e4da4d2d6b7b13ac619aaa5477066d6ae933dd057c0e08ea").unwrap();
+        dotenv().ok();
+        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
+        // println!("API_KEY: {:?}", api_key);
+        let api = SarufiAPI::new(api_key).unwrap();
   
         let name = "My Rusty Chatbot";
         let description = Some("A rusty chatbot created using Sarufi API");
@@ -182,7 +195,21 @@ mod tests {
                 visible_on_community,
         ).await?;  
 
-        println!("Result: {:?}", bot);
+        // println!("Result: {:?}", bot.id);
+        // println!("Name: {:?}", bot.name);
+        // println!("Description: {:?}", bot.description);
+        // println!("Industry: {:?}", bot.industry);
+        // println!("Webhook URL: {:?}", bot.webhook_url);
+        // println!("Webhook Trigger Intents: {:?}", bot.webhook_trigger_intents);
+        // println!("Visible on Community: {:?}", bot.visible_on_community);
+        // println!("Intents: {:?}", bot.intents);
+        // println!("Flows: {:?}", bot.flows);
+
+
+
+        assert_eq!(bot.name, name);
+        assert_eq!(bot.description, description.unwrap());
+        assert_eq!(bot.industry, industry.unwrap());
 
         Ok(())
 
