@@ -205,8 +205,6 @@ mod tests {
         // println!("Intents: {:?}", bot.intents);
         // println!("Flows: {:?}", bot.flows);
 
-
-
         assert_eq!(bot.name, name);
         assert_eq!(bot.description, description.unwrap());
         assert_eq!(bot.industry, industry.unwrap());
