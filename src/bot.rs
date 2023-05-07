@@ -6,7 +6,7 @@ use serde_json::{json, Map, Value};
 
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Bot<T> {
+pub struct Bot{
     pub id: u64,
     pub user_id: u64,
     pub name: String,
@@ -15,7 +15,7 @@ pub struct Bot<T> {
     pub flows: HashMap<String, serde_json::Value>,
     pub model_name: String,
     pub confidence_threshold: f64,
-    pub evaluation_metrics: Option<HashMap<String, T>>,
+    pub evaluation_metrics: Option<HashMap<String, serde_json::Value>>,// Figure the correct type for this
     pub industry: String,
     pub language: String,
     pub visible_on_community: bool,
@@ -24,6 +24,7 @@ pub struct Bot<T> {
     pub created_at: String,
     pub updated_at: String,
 }
+
 
 
 #[derive(Deserialize, Debug)]

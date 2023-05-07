@@ -64,20 +64,14 @@ impl SarufiAPI {
             
             
         // }
-        pub async fn get_bot<T>(&self, id: usize) -> Result<Bot<T>, ApiError>
-        
-        
-        
-        where T: DeserializeOwned
-         {
-            
+        pub async fn get_bot(&self, id: usize) -> Result<Bot, ApiError> {
             let url = utils::api_url(&format!("/chatbot/{}", id));
             let response = self.client.get(&url).send().await?;
             
             
              
             if response.status().is_success() {
-                let mut result = response.json::<Bot<T>>().await?;
+                let mut result = response.json::<Bot>().await?;
                 if let Some(metrics) = result.evaluation_metrics {
                     
                     result.evaluation_metrics = Some(metrics);
@@ -99,7 +93,7 @@ impl SarufiAPI {
         }
 
         /// Creates a new bot
-        pub async fn create_bot<T>(&self, 
+        pub async fn create_bot(&self, 
             name: &str,
             description: Option<&str>,
             industry: Option<&str>,
@@ -107,10 +101,7 @@ impl SarufiAPI {
             intents: Option<HashMap<String, Vec<String>>>,
             webhook_url: Option<&str>,
             webhook_trigger_intents: Option<Vec<String>>,
-            visible_on_community: Option<bool>) -> Result<Bot<T>, ApiError> 
-            
-            where T: DeserializeOwned
-            {
+            visible_on_community: Option<bool>) -> Result<Bot, ApiError> {
 
             let url = utils::api_url("/chatbot");
             let mut data = HashMap::new();
@@ -160,7 +151,7 @@ impl SarufiAPI {
          
             if response.status().is_success() {
                 
-                let mut result = response.json::<Bot<T>>().await?;
+                let mut result = response.json::<Bot>().await?;
                 if let Some(metrics) = result.evaluation_metrics {
                     
                     result.evaluation_metrics = Some(metrics);
@@ -190,7 +181,7 @@ impl SarufiAPI {
             }
           }
 
-          pub async fn update_bot<T>(&self, 
+          pub async fn update_bot(&self, 
             id: usize,
             name: &str,
             description: Option<&str>,
@@ -199,12 +190,7 @@ impl SarufiAPI {
             intents: Option<HashMap<String, Vec<String>>>,
             webhook_url: Option<&str>,
             webhook_trigger_intents: Option<Vec<String>>,
-            visible_on_community: Option<bool>) -> Result<Bot<T>, ApiError> 
-            
-            
-            where T: DeserializeOwned{
-
-            
+            visible_on_community: Option<bool>) -> Result<Bot, ApiError> {
 
             let url = utils::api_url(&format!("/chatbot/{}", id));
             let mut data = HashMap::new();
@@ -253,7 +239,7 @@ impl SarufiAPI {
             let response = self.client.put(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
          
             if response.status().is_success() {
-                let result = response.json::<Bot<T>>().await?;
+                let result = response.json::<Bot>().await?;
                 Ok(result)
             } else {
                 let error = response.json::<SarufiApiError>().await?;
@@ -269,14 +255,14 @@ impl SarufiAPI {
 mod tests {
     use super::*;
 
-    #[tokio::test]async fn test_api_url<T>() where T: DeserializeOwned + Debug {
+    #[tokio::test]
+    async fn test_api_url() {
         dotenv().ok();
         let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
         let api = SarufiAPI::new(api_key).unwrap();
-        let bot: Bot<T> = api.get_bot(1045).await.unwrap();
+        let bot = api.get_bot(1045).await.unwrap();
         println!("Result: {:?}", bot);
     }
-    
 
     #[tokio::test]
     async fn test_create_bot() -> Result<(), ApiError> {
