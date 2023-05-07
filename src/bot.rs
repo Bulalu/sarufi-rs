@@ -5,8 +5,29 @@ use serde_json::{json, Map, Value};
 
 
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Bot<T> {
+    pub id: u64,
+    pub user_id: u64,
+    pub name: String,
+    pub description: String,
+    pub intents: HashMap<String, Vec<String>>,
+    pub flows: HashMap<String, serde_json::Value>,
+    pub model_name: String,
+    pub confidence_threshold: f64,
+    pub evaluation_metrics: Option<HashMap<String, T>>,
+    pub industry: String,
+    pub language: String,
+    pub visible_on_community: bool,
+    pub webhook_url: String,
+    pub webhook_trigger_intents: Vec<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+
 #[derive(Deserialize, Debug)]
-pub struct Bot {
+pub struct BotResponse {
     pub id: u64,
     pub user_id: u64,
     pub name: String,
@@ -30,12 +51,12 @@ pub struct EvaluationMetrics {
     pub metrics: Metrics,
     pub model_type: String,
     pub status: String,
+    pub classification_report: ClassificationReport, // added this field
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Metrics {
     pub model_metrics: ModelMetrics,
-    pub classification_report: ClassificationReport,
     pub accuracy: f64,
     pub macro_avg: MacroAvg,
     pub weighted_avg: WeightedAvg,
@@ -78,4 +99,5 @@ pub struct WeightedAvg {
     pub f1_score: f64,
     pub support: u64,
 }
+
 
