@@ -158,6 +158,8 @@ impl SarufiAPI {
             if response.status().is_success() {
                 
                 let mut result = response.json::<Bot>().await?;
+
+                // do you really need to check this?, seems to be working fine without it
                 if let Some(e_metrics) = result.evaluation_metrics {
                     
                     result.evaluation_metrics = Some(e_metrics);
@@ -179,22 +181,8 @@ impl SarufiAPI {
             }
             
 
-
-           
         }
 
-        async fn parse_result<R>(&self, response: Response) -> Result<R, ApiError> 
-            where R: DeserializeOwned
-          {
-            if response.status().is_success() {
-                
-              let result = response.json::<R>().await?;
-              Ok(result)
-            } else {
-              let error = response.json::<SarufiApiError>().await?;
-              Err(ApiError::GenericError(error.message()))
-            }
-          }
 
           pub async fn update_bot(&self, 
             id: usize,
