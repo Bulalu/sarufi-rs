@@ -1,0 +1,150 @@
+{
+  "created_at": "2023-05-01T20:57:29.880578",
+  "description": "A rusty chatbot created using Sarufi API",
+  "evaluation_metrics": {
+    "metrics": {
+      "classification_report": {
+        "accuracy": 1.0,
+        "bye": {
+          "f1-score": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 8
+        },
+        "greetings": {
+          "f1-score": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 23
+        },
+        "macro avg": {
+          "f1-score": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 48
+        },
+        "thanks": {
+          "f1-score": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 17
+        },
+        "weighted avg": {
+          "f1-score": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 48
+        }
+      },
+      "model_metrics": {
+        "accuracy": 1.0,
+        "error_rate": 0.0,
+        "recall": 1.0
+      }
+    },
+    "model_type": "RandomForestClassifier",
+    "status": "success"
+  },
+  "flows": {
+    "bye": {
+      "message": [
+        [
+          "Welcome again"
+        ],
+        [
+          "Have a nice day"
+        ]
+      ],
+      "next_state": "end"
+    },
+    "greetings": {
+      "message": [
+        [
+          "Hello, Your Welcome"
+        ],
+        [
+          "Hello"
+        ]
+      ],
+      "next_state": "end"
+    },
+    "thanks": {
+      "message": [
+        [
+          "Your Welcome"
+        ],
+        [
+          "Thanks to you"
+        ]
+      ],
+      "next_state": "end"
+    }
+  },
+  "id": 1045,
+  "industry": "Technology",
+  "intents": {
+    "bye": [
+      "Bye",
+      "Byee",
+      "goodbye",
+      "It was great talking to you. Bye for now!",
+      "I hope you have a wonderful day. Bye!",
+      "Take care and stay safe. Bye!",
+      "I enjoyed our conversation. See you soon. Bye!",
+      "Have a good one. Bye!"
+    ],
+    "greetings": [
+      "hello",
+      "How are you?",
+      "You good?",
+      "how is you day?",
+      "how was you day?",
+      "you cool?",
+      "how are you doing?",
+      "you fine?",
+      "you healthy?",
+      "hola",
+      "Good morning?",
+      "Good afternoon?",
+      "Good evening?",
+      "How is your day?",
+      "How was your day?",
+      "yoh",
+      "Hi",
+      "hey",
+      "Hello",
+      "hellow",
+      "Hello, how are you today?",
+      "Hello, nice to meet you.",
+      "Hello, Im happy to see you again."
+    ],
+    "thanks": [
+      "Thank you",
+      "God bless you",
+      "thank you so much",
+      "thank you very much",
+      "thanks",
+      "thanks alot",
+      "thank you alot",
+      "You are the best",
+      "I appreciate your kindness and generosity.",
+      "Thank you for being such a great friend and support.",
+      "You are amazing! Thank you for everything you do.",
+      "Im so grateful for your help and guidance.",
+      "You have made a positive difference in my life. Thank you!",
+      "Thank you for your time and attention. It means a lot to me.",
+      "Thank you for sharing your wisdom and experience with me.",
+      "You have been so thoughtful and considerate. Thank you for your care and compassion.",
+      "You are a blessing in my life. Thank you for your love and loyalty."
+    ]
+  },
+  "language": "english",
+  "model_name": "models/4164296ff39c672683aad4acc8c4039a.pkl",
+  "name": "My Rusty Chatbot",
+  "updated_at": "2023-05-01T20:57:29.880580",
+  "user_id": 345,
+  "user_name": "Elishabulalu031",
+  "visible_on_community": true,
+  "webhook_trigger_intents": [],
+  "webhook_url": "https://example.com/webhook"
+}

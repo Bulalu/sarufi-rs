@@ -8,14 +8,14 @@ use serde_json::{json, Map, Value};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Bot{
     pub id: u64,
+    pub confidence_threshold: Option<f64>,
     pub user_id: u64,
     pub name: String,
     pub description: String,
     pub intents: HashMap<String, Vec<String>>,
     pub flows: HashMap<String, serde_json::Value>,
     pub model_name: String,
-    pub confidence_threshold: f64,
-    pub evaluation_metrics: Option<HashMap<String, serde_json::Value>>,// Figure the correct type for this
+    pub evaluation_metrics: Option<EvaluationMetrics>,// Figure the correct type for this
     pub industry: String,
     pub language: String,
     pub visible_on_community: bool,
@@ -25,80 +25,40 @@ pub struct Bot{
     pub updated_at: String,
 }
 
-
-
-#[derive(Deserialize, Debug)]
-pub struct BotResponse {
-    pub id: u64,
-    pub user_id: u64,
-    pub name: String,
-    pub description: String,
-    pub intents: HashMap<String, Vec<String>>,
-    pub flows: HashMap<String, serde_json::Value>,
-    pub model_name: String,
-    pub confidence_threshold: f64,
-    pub evaluation_metrics: EvaluationMetrics,
-    pub industry: String,
-    pub language: String,
-    pub visible_on_community: bool,
-    pub webhook_url: String,
-    pub webhook_trigger_intents: Vec<String>,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct EvaluationMetrics {
-    pub metrics: Metrics,
-    pub model_type: String,
-    pub status: String,
-    pub classification_report: ClassificationReport, // added this field
+    metrics: Option<Metrics>,
+    model_type: Option<String>,
+    status: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Metrics {
-    pub model_metrics: ModelMetrics,
-    pub accuracy: f64,
-    pub macro_avg: MacroAvg,
-    pub weighted_avg: WeightedAvg,
+#[derive(Debug, Deserialize, Serialize)]
+struct Metrics {
+    classification_report: ClassificationReport,
+    model_metrics: ModelMetrics,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct ModelMetrics {
-    pub accuracy: f64,
-    pub recall: f64,
-    pub error_rate: f64,
+#[derive(Debug, Deserialize, Serialize)]
+struct ClassificationMetrics {
+  
+    precision: f64,
+    recall: f64,
+    support: usize,
+    #[serde(rename = "f1-score")]
+    f1_score: f64,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct ClassificationReport {
-    pub bye: ReportItem,
-    pub greetings: ReportItem,
-    pub thanks: ReportItem,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct ReportItem {
-    pub precision: f64,
-    pub recall: f64,
-    pub f1_score: f64,
-    pub support: u64,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct MacroAvg {
-    pub precision: f64,
-    pub recall: f64,
-    pub f1_score: f64,
-    pub support: u64,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct WeightedAvg {
-    pub precision: f64,
-    pub recall: f64,
-    pub f1_score: f64,
-    pub support: u64,
+#[derive(Serialize, Deserialize, Debug)]
+struct ClassificationReport {
+    accuracy: f64,
+    #[serde(flatten)]
+    categories: HashMap<String, ClassificationMetrics>,
 }
 
 
+#[derive(Debug, Deserialize, Serialize)]
+struct ModelMetrics {
+    accuracy: f64,
+    error_rate: f64,
+    recall: f64,
+}
