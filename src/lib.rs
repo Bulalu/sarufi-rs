@@ -196,72 +196,72 @@ impl SarufiAPI {
             }
           }
 
-        //   pub async fn update_bot(&self, 
-        //     id: usize,
-        //     name: &str,
-        //     description: Option<&str>,
-        //     industry: Option<&str>,
-        //     flow: Option<HashMap<String, Value>>,
-        //     intents: Option<HashMap<String, Vec<String>>>,
-        //     webhook_url: Option<&str>,
-        //     webhook_trigger_intents: Option<Vec<String>>,
-        //     visible_on_community: Option<bool>) -> Result<Bot, ApiError> {
+          pub async fn update_bot(&self, 
+            id: usize,
+            name: &str,
+            description: Option<&str>,
+            industry: Option<&str>,
+            flow: Option<HashMap<String, Value>>,
+            intents: Option<HashMap<String, Vec<String>>>,
+            webhook_url: Option<&str>,
+            webhook_trigger_intents: Option<Vec<String>>,
+            visible_on_community: Option<bool>) -> Result<Bot, ApiError> {
 
-        //     let url = utils::api_url(&format!("/chatbot/{}", id));
-        //     let mut data = HashMap::new();
+            let url = utils::api_url(&format!("/chatbot/{}", id));
+            let mut data = HashMap::new();
 
-        //     data.insert("name".to_owned(), Value::String(name.to_owned()));
+            data.insert("name".to_owned(), Value::String(name.to_owned()));
     
-        //     if let Some(description) = description {
-        //         data.insert("description".to_owned(), Value::String(description.to_owned()));
-        //     }
+            if let Some(description) = description {
+                data.insert("description".to_owned(), Value::String(description.to_owned()));
+            }
         
-        //     if let Some(industry) = industry {
-        //         data.insert("industry".to_owned(), Value::String(industry.to_owned()));
-        //     }
+            if let Some(industry) = industry {
+                data.insert("industry".to_owned(), Value::String(industry.to_owned()));
+            }
         
-        //     if let Some(flow) = flow {
-        //         data.insert("flow".to_owned(), Value::Object(flow.into_iter().collect()));
-        //     }
+            if let Some(flow) = flow {
+                data.insert("flow".to_owned(), Value::Object(flow.into_iter().collect()));
+            }
         
-        //     if let Some(intents) = intents {
-        //         data.insert(
-        //             "intents".to_owned(),
-        //             Value::Object(
-        //                 intents
-        //                     .into_iter()
-        //                     .map(|(k, v)| (k, Value::Array(v.into_iter().map(Value::String).collect())))
-        //                     .collect(),
-        //             ),
-        //         );
-        //     }
+            if let Some(intents) = intents {
+                data.insert(
+                    "intents".to_owned(),
+                    Value::Object(
+                        intents
+                            .into_iter()
+                            .map(|(k, v)| (k, Value::Array(v.into_iter().map(Value::String).collect())))
+                            .collect(),
+                    ),
+                );
+            }
         
-        //     if let Some(webhook_url) = webhook_url {
-        //         data.insert("webhook_url".to_owned(), Value::String(webhook_url.to_owned()));
-        //     }
+            if let Some(webhook_url) = webhook_url {
+                data.insert("webhook_url".to_owned(), Value::String(webhook_url.to_owned()));
+            }
         
-        //     if let Some(webhook_trigger_intents) = webhook_trigger_intents {
-        //         data.insert(
-        //             "webhook_trigger_intents".to_owned(),
-        //             Value::Array(webhook_trigger_intents.into_iter().map(Value::String).collect()),
-        //         );
-        //     }
+            if let Some(webhook_trigger_intents) = webhook_trigger_intents {
+                data.insert(
+                    "webhook_trigger_intents".to_owned(),
+                    Value::Array(webhook_trigger_intents.into_iter().map(Value::String).collect()),
+                );
+            }
 
-        //     if let Some(visible_on_community) = visible_on_community {
-        //         data.insert("visible_on_community".to_owned(), Value::Bool(visible_on_community));
-        //     }
+            if let Some(visible_on_community) = visible_on_community {
+                data.insert("visible_on_community".to_owned(), Value::Bool(visible_on_community));
+            }
         
-        //     let response = self.client.put(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
+            let response = self.client.put(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
          
-        //     if response.status().is_success() {
-        //         let result = response.json::<Bot>().await?;
-        //         Ok(result)
-        //     } else {
-        //         let error = response.json::<SarufiApiError>().await?;
-        //         Err(ApiError::GenericError(error.message()))
-        //     }
+            if response.status().is_success() {
+                let result = response.json::<Bot>().await?;
+                Ok(result)
+            } else {
+                let error = response.json::<SarufiApiError>().await?;
+                Err(ApiError::GenericError(error.message()))
+            }
           
-        // }
+        }
 
    
 }
@@ -317,51 +317,55 @@ mod tests {
         // println!("Intents: {:?}", bot.intents);
         // println!("Flows: {:?}", bot.flows);
 
-        // assert_eq!(bot.name, name);
-        // assert_eq!(bot.description, description.unwrap());
-        // assert_eq!(bot.industry, industry.unwrap());
+        assert_eq!(bot.name, name);
+        assert_eq!(bot.description, description.unwrap());
+        assert_eq!(bot.industry, industry.unwrap());
 
         Ok(())
 
        
     }
 
-    // #[tokio::test]
-    // async fn test_update_bot() {
-    //     dotenv().ok();
-    //     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-    //     // println!("API_KEY: {:?}", api_key);
-    //     let api = SarufiAPI::new(api_key).unwrap();
+    #[tokio::test]
+    async fn test_update_bot() {
+        dotenv().ok();
+        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
+        // println!("API_KEY: {:?}", api_key);
+        let api = SarufiAPI::new(api_key).unwrap();
 
-    //     let id = 1112;
+        let id = 1112;
 
-    //     // let prev_bot = api.get_bot(id).await.unwrap();
-    //     // println!("Prev Bot: {:?}", prev_bot);
+        let prev_bot = api.get_bot(id).await.unwrap();
+        // println!("Prev Bot: {:?}", prev_bot);
          
-    //     let name = "My Other Rusty Chatbot";
-    //     let description = Some("A rusty chatbot created using Sarufi API");
-    //     let industry = Some("Technology");
-    //     let flow: Option<HashMap<String, Value>> = None;
-    //     let intents: Option<HashMap<String, Vec<String>>> = None;
-    //     let webhook_url = Some("https://example.com/webhook");
-    //     let webhook_trigger_intents: Option<Vec<String>> = None;
-    //     let visible_on_community = Some(true);  
+        let name = "My Other Rusty Chatbot";
+        let description = Some("A rusty chatbot created using Sarufi API");
+        let industry = Some("Technology");
+        let flow: Option<HashMap<String, Value>> = None;
+        let intents: Option<HashMap<String, Vec<String>>> = None;
+        let webhook_url = Some("https://example.com/webhook");
+        let webhook_trigger_intents: Option<Vec<String>> = None;
+        let visible_on_community = Some(true);  
 
-    //     let bot = api.update_bot(
-    //             id,
-    //             name,
-    //             description,
-    //             industry,
-    //             flow,
-    //             intents,
-    //             webhook_url,
-    //             webhook_trigger_intents,
-    //             visible_on_community,
-    //     ).await.unwrap();
+        let bot = api.update_bot(
+                id,
+                name,
+                description,
+                industry,
+                flow,
+                intents,
+                webhook_url,
+                webhook_trigger_intents,
+                visible_on_community,
+        ).await.unwrap();
 
-    //     println!("Result: {:?}", bot.id);
+        println!("Result: {:?}", bot.id);
 
-    // }
+        assert_eq!(bot.name, name);
+        assert_eq!(bot.description, description.unwrap());
+        assert_eq!(bot.industry, industry.unwrap());
+
+    }
 }
 
 
