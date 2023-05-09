@@ -66,10 +66,10 @@ impl SarufiAPI {
             let response = self.client.delete(&url).send().await?;
 
             if response.status().is_success() {
-                let json_string = response.text().await?;
-                let json_value: Value = serde_json::from_str(&json_string).unwrap();
-                let pretty_json = serde_json::to_string_pretty(&json_value).unwrap();
-                println!("{}", pretty_json);
+                // let json_string = response.text().await?;
+                // let json_value: Value = serde_json::from_str(&json_string).unwrap();
+                // let pretty_json = serde_json::to_string_pretty(&json_value).unwrap();
+                // println!("{}", pretty_json);
                 Ok(())
             } else {
                 let error = response.json::<SarufiApiError>().await?;
@@ -245,7 +245,7 @@ mod tests {
         dotenv().ok();
         let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
         let api = SarufiAPI::new(api_key).unwrap();
-        let bot = api.get_bot(1045).await.unwrap();
+        let bot = api.get_bot(1046).await.unwrap();
         println!("Result: {:?}", bot);
     }
 
@@ -254,7 +254,7 @@ mod tests {
         dotenv().ok();
         let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
         let api = SarufiAPI::new(api_key).unwrap();
-        let bot = api.delete_bot(1045).await.unwrap();
+        let bot = api.delete_bot(1046).await.unwrap();
         println!("Result: {:?}", bot);
     }
 
