@@ -13,6 +13,8 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
 
+
+
 mod errors;
 mod utils;
 mod api;
@@ -47,9 +49,8 @@ impl SarufiAPI {
         Ok(SarufiAPI { client })
     }
 
-
-     
-        pub async fn get_bot(&self, id: usize) -> Result<(Bot), ApiError> {
+    
+        pub async fn get_bot(&self, id: usize) -> Result<Bot, ApiError> {
             let url = utils::api_url(&format!("/chatbot/{}", id));
             let response = self.client.get(&url).send().await?;
 
@@ -62,7 +63,6 @@ impl SarufiAPI {
             }
   
         }
-
 
         pub async fn get_all_bots(&self) -> Result<Vec<Bot>, ApiError> {
             let url = utils::api_url("/chatbots");
@@ -81,40 +81,38 @@ impl SarufiAPI {
             }
   
         }
-
-        pub async fn _fetch_response(&self, bot_id: usize, chat_id: &str, message: &str, message_type: &str, channel: &str) -> Result<(), ApiError> {
+        pub async fn _fetch_response(&self, bot_id: usize, chat_id: &str, message: &str, message_type: &str, channel: &str) -> Result<Response, ApiError> {
             let url = utils::api_url("/conversation");
-
+        
             if (channel == "whatsapp") {
                 println!("Whent to whatsapp");
                 let url = utils::api_url("/conversation/whatsapp");
                 println!("URL: {:?}", url)
             }
 
+            println!("URL: {:?}", url);
+        
             let mut data = HashMap::new();
             data.insert("bot_id".to_owned(), Value::Number(serde_json::Number::from(bot_id)));
             data.insert("chat_id".to_owned(), Value::String(chat_id.to_owned()));
             data.insert("message".to_owned(), Value::String(message.to_owned()));
             data.insert("message_type".to_owned(), Value::String(message_type.to_owned()));
             data.insert("channel".to_owned(), Value::String(channel.to_owned()));
-
+        
             let response = self.client.post(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
-            // println!("Data: {:?}", data);
+        
             if response.status().is_success() {
-                let json_string = response.text().await?;
-                let json_value: Value = serde_json::from_str(&json_string).unwrap();
-                let pretty_json = serde_json::to_string_pretty(&json_value).unwrap();
-                println!("{}", pretty_json);
-                Ok(())
+                // let response_clone = response.clone();
+                // let json_string = response_clone.text().await?;
+                // println!("JSON: {:?}", json_string);
+                println!("Suucee");
+                Ok(response)
             } else {
                 let error = response.json::<SarufiApiError>().await?;
                 Err(ApiError::GenericError(error.message()))
-                // println!("Error")
             }
-
         }
-
-
+        
         pub async fn delete_bot(&self, id: usize) -> Result<(), ApiError> {
             let url = utils::api_url(&format!("/chatbot/{}", id));
             let response = self.client.delete(&url).send().await?;
@@ -388,7 +386,7 @@ mod tests {
         ).await?;  
 
         println!("Result: {:?}", bot);
-        // println!("Name: {:?}", bot.name);
+        println!("ID: {:?}", bot.id);
         // println!("Description: {:?}", bot.description);
         // println!("Industry: {:?}", bot.industry);
         // println!("Webhook URL: {:?}", bot.webhook_url);
@@ -452,12 +450,18 @@ mod tests {
     async fn test_fetch () {
         dotenv().ok();
         let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        // println!("API_KEY: {:?}", api_key);
         let api = SarufiAPI::new(api_key).unwrap();
-
-        let bot = api._fetch_response(1046, "123456789", "Hello", "text", "whatsapp").await;
+    
+        match api._fetch_response(1145, "123456789", "Hello", "text", "other").await {
+            Ok(response) => {
+                let json_string = response.text().await.unwrap();
+                let json_value: Value = serde_json::from_str(&json_string).unwrap();
+                // let message = json_value["message"].as_str().unwrap();
+                println!("Result: {:?}", json_value);
+            },
+            Err(e) => println!("Error: {:?}", e)
+        }
     }
-  
 
 }
 
