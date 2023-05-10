@@ -7,7 +7,7 @@ use serde_json::{json, Map, Value};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Bot{
-    pub id: u64,
+    pub id: usize,
     pub confidence_threshold: Option<f64>,
     pub user_id: u64,
     pub name: String,

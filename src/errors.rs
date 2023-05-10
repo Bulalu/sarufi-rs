@@ -15,6 +15,8 @@ pub enum ApiError {
   /// A generic error with message on a possible failure while interacting with the api
   #[fail(display = "Error: {}", _0)]
   GenericError(String),
+
+  
 }
 
 impl From<reqwest::Error> for ApiError {
@@ -35,4 +37,8 @@ impl From<walkdir::Error> for ApiError {
   }
 }
 
-
+impl From<serde_json::Error> for ApiError {
+  fn from(json_err: serde_json::Error) -> ApiError {
+    ApiError::GenericError(format!("{}", json_err))
+  }
+}

@@ -1,0 +1,33 @@
+{
+    "name": "My Test Bot",
+    "description": "A test bot created using the Sarufi API",
+    "industry": "Technology",
+    "flow": {
+        "greetings": {
+            "message": [["Hello"], ["Hi"]],
+            "next_state": "end"
+        },
+        "bye": {
+            "message": [["Goodbye"], ["See you later"]],
+            "next_state": "end"
+        }
+    },
+    "intents": {
+        "greetings": [
+            "hello",
+            "hi",
+            "hey"
+        ],
+        "bye": [
+            "goodbye",
+            "bye",
+            "see you later"
+        ]
+    },
+    "webhook_url": "https://example.com/webhook",
+    "webhook_trigger_intents": [
+        "greetings",
+        "bye"
+    ],
+    "visible_on_community": true
+}
