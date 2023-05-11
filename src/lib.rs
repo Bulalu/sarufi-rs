@@ -81,7 +81,8 @@ impl SarufiAPI {
             }
   
         }
-        pub async fn _fetch_response(&self, bot_id: usize, chat_id: &str, message: &str, message_type: &str, channel: &str) -> Result<Response, ApiError> {
+     
+        pub async fn _fetch_response(&self, bot_id: usize, chat_id: &str, message: &str, message_type: &str, channel: &str) -> Result<String, ApiError> {
             let url = utils::api_url("/conversation");
         
             if (channel == "whatsapp") {
@@ -102,11 +103,12 @@ impl SarufiAPI {
             let response = self.client.post(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
         
             if response.status().is_success() {
-                // let response_clone = response.clone();
-                // let json_string = response_clone.text().await?;
-                // println!("JSON: {:?}", json_string);
-                println!("Suucee");
-                Ok(response)
+               
+                let json_string = response.text().await.unwrap();
+                let json_value: Value = serde_json::from_str(&json_string).unwrap();
+                let result = & json_value["message"][0];
+               
+                Ok(result.to_string())
             } else {
                 let error = response.json::<SarufiApiError>().await?;
                 Err(ApiError::GenericError(error.message()))
@@ -451,17 +453,19 @@ mod tests {
         dotenv().ok();
         let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
         let api = SarufiAPI::new(api_key).unwrap();
-    
-        match api._fetch_response(1145, "123456789", "Hello", "text", "other").await {
-            Ok(response) => {
-                let json_string = response.text().await.unwrap();
-                let json_value: Value = serde_json::from_str(&json_string).unwrap();
-                // let message = json_value["message"].as_str().unwrap();
-                println!("Result: {:?}", json_value);
-            },
-            Err(e) => println!("Error: {:?}", e)
-        }
+
+
+        let bot_id = 1145;
+        let chat_id = "123456789";
+        let message = "Hello";
+        let message_type = "text";
+        let channel = "other";
+
+        let response = api._fetch_response(bot_id, chat_id, message, message_type, channel).await.unwrap();
+        println!("Result: {:?}", response);
+
     }
+
 
 }
 
