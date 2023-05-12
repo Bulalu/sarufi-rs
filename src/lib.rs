@@ -13,7 +13,6 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
 
-
 mod errors;
 mod utils;
 mod api;
@@ -49,12 +48,13 @@ impl SarufiAPI {
     }
 
     
-        pub async fn get_bot(&self, id: usize) -> Result<Bot, ApiError> {
+    pub async fn get_bot(&self, id: usize) -> Result<Bot, ApiError> {
             let url = utils::api_url(&format!("/chatbot/{}", id));
+            
             let response = self.client.get(&url).send().await?;
 
             if response.status().is_success() {
-                let mut result = response.json::<Bot>().await?;
+                let  result = response.json::<Bot>().await?;
                 Ok(result)
             } else {
                 let error = response.json::<SarufiApiError>().await?;
@@ -63,8 +63,10 @@ impl SarufiAPI {
   
         }
 
-        pub async fn get_all_bots(&self) -> Result<Vec<Bot>, ApiError> {
+    pub async fn get_all_bots(&self) -> Result<Vec<Bot>, ApiError> {
             let url = utils::api_url("/chatbots");
+
+            
             let response = self.client.get(&url).send().await?;
 
             if response.status().is_success() {
@@ -85,12 +87,10 @@ impl SarufiAPI {
             let url = utils::api_url("/conversation");
         
             if  channel == "whatsapp" {
-                println!("Whent to whatsapp");
-                let url = utils::api_url("/conversation/whatsapp");
-                println!("URL: {:?}", url)
+                let url = utils::api_url("/conversation/whatsapp");  
             }
 
-            println!("URL: {:?}", url);
+            // println!("URL: {:?}", url);
         
             let mut data = HashMap::new();
             data.insert("bot_id".to_owned(), Value::Number(serde_json::Number::from(bot_id)));
@@ -126,7 +126,49 @@ impl SarufiAPI {
             Ok(response)
         }
 
+    
+        pub async fn chat_status(&self, bot_id: usize, chat_id: &str) -> Result<String, ApiError> {
+            let url = utils::api_url("/allchannels/status");
+        
+            let mut data = HashMap::new();
+            data.insert("bot_id".to_owned(), Value::Number(serde_json::Number::from(bot_id)));
+            data.insert("chat_id".to_owned(), Value::String(chat_id.to_owned()));
+        
+            let response = self.client.post(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
+        
+            if response.status().is_success() {
+                let json_string = response.text().await.unwrap();
+                Ok(json_string)
+            } else {
+                let error = response.json::<SarufiApiError>().await?;
+                Err(ApiError::GenericError(error.message()))
+            }
+        }
 
+        pub async fn update_conversation_state(&self, bot_id: usize, chat_id: &str, next_state: &str) -> Result<String, ApiError> {
+
+            let url = utils::api_url("/conversation-state");
+        
+            let mut data = HashMap::new();
+            data.insert("bot_id".to_owned(), Value::Number(serde_json::Number::from(bot_id)));
+            data.insert("chat_id".to_owned(), Value::String(chat_id.to_owned()));
+            data.insert("next_state".to_owned(), Value::String(next_state.to_owned()));
+
+            let response = self.client.post(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
+
+            if response.status().is_success() {
+                let json_string = response.text().await.unwrap();
+                // let json_value: Value = serde_json::from_str(&json_string).unwrap();
+                // let result = & json_value["message"][0];
+               
+                Ok(json_string)
+            } else {
+                let error = response.json::<SarufiApiError>().await?;
+                Err(ApiError::GenericError(error.message()))
+            }
+            
+        
+        }
         pub async fn delete_bot(&self, id: usize) -> Result<(), ApiError> {
             let url = utils::api_url(&format!("/chatbot/{}", id));
             let response = self.client.delete(&url).send().await?;
@@ -259,7 +301,7 @@ impl SarufiAPI {
             }
         }
 
-          pub async fn update_bot(&self, 
+        pub async fn update_bot(&self, 
             id: usize,
             name: &str,
             description: Option<&str>,
@@ -332,7 +374,8 @@ impl SarufiAPI {
     
 #[cfg(test)]
 mod tests {
-    use std::{env, time::Duration};
+
+    use std::time::Duration;
 
     use super::*;
 
@@ -341,8 +384,15 @@ mod tests {
         dotenv().ok();
         let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
         let api = SarufiAPI::new(api_key).unwrap();
-        let bot = api.get_bot(1046).await.unwrap();
-        println!("Result: {:?}", bot);
+        let bot = api.get_bot(1145).await.unwrap();
+        
+        // println!("Result: {:?}", bot);
+        println!("Name: {:?}", bot.name);
+        println!("ID: {:?}", bot.id);
+        println!("Description: {:?}", bot.description);
+        println!("Industry: {:?}", bot.industry);
+      
+
     }
 
     #[tokio::test]
@@ -358,19 +408,19 @@ mod tests {
         
     }
 
-    // #[tokio::test]
-    // async fn test_delete_all_bots() {
-    //     dotenv().ok();
-    //     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-    //     let api = SarufiAPI::new(api_key).unwrap();
-    //     let bots = api.get_all_bots().await.unwrap();
+    #[tokio::test]
+    async fn test_delete_all_bots() {
+        dotenv().ok();
+        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
+        let api = SarufiAPI::new(api_key).unwrap();
+        let bots = api.get_all_bots().await.unwrap();
         
-    //     for bot in bots {
-    //         api.delete_bot(bot.id).await.unwrap();
-    //         println!("Deleted bot {}", bot.id);
-    //         tokio::time::sleep(Duration::from_secs(1)).await; // Delay for one second
-    //     }
-    // }
+        for bot in bots {
+            api.delete_bot(bot.id).await.unwrap();
+            println!("Deleted bot {}", bot.id);
+            tokio::time::sleep(Duration::from_secs(1)).await; // Delay for one second
+        }
+    }
     
     #[tokio::test]
     async fn test_create_bot() -> Result<(), ApiError> {
@@ -425,10 +475,10 @@ mod tests {
         // println!("API_KEY: {:?}", api_key);
         let api = SarufiAPI::new(api_key).unwrap();
 
-        let id = 1112;
+        let id = 1112; // change this to your bot id
 
         let prev_bot = api.get_bot(id).await.unwrap();
-        // println!("Prev Bot: {:?}", prev_bot);
+        
          
         let name = "My Other Rusty Chatbot";
         let description = Some("A rusty chatbot created using Sarufi API");
@@ -459,7 +509,6 @@ mod tests {
 
     }
 
-
     #[tokio::test]
     async fn test_fetch () {
         dotenv().ok();
@@ -467,7 +516,7 @@ mod tests {
         let api = SarufiAPI::new(api_key).unwrap();
 
 
-        let bot_id = 1145;
+        let bot_id = 1145; // change this to your bot id
         let chat_id = "123456789";
         let message = "Hello";
         let message_type = "text";
@@ -479,25 +528,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_uuid () {
-        // Import the required types and traits
-        use uuid::Uuid;
-            // Generate a random UUID
-        let my_uuid = Uuid::new_v4();
-        let my_uuid_str = my_uuid.to_string();
-
-        // Print the UUID
-        println!("Generated UUID: {}", my_uuid_str);
-    }
-
-    #[tokio::test]
     async fn test_chat () {
         // Import the required types and traits
         dotenv().ok();
         let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
         let api = SarufiAPI::new(api_key).unwrap();
 
-        let bot_id = 1145;
+        let bot_id = 1145; // change this to your bot id
         let response = api.chat(bot_id).await.unwrap();
         println!("Result: {:?}", response.as_str());
 
