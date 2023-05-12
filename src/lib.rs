@@ -1,14 +1,9 @@
-
-
-
 use reqwest::{Client, ClientBuilder, header::HeaderMap};
-
 
 pub use errors::ApiError;
 pub use bot::{Bot};
 use serde_json::{ Value};
 use std::{collections::HashMap};
-use dotenv::dotenv;
 use std::fs::File;
 use std::io::BufReader;
 
