@@ -2,6 +2,8 @@
 
 # sarufi-rs  🦀
 
+A rust package to help you interact with the Sarufi platform inspired by [Python Sarufi SDK](https://github.com/Neurotech-HQ/sarufi-python-sdk)
+
 ## Installation
 
 ```bash
