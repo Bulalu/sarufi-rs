@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use serde_json::{json, Map, Value};
-
-
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -15,7 +12,7 @@ pub struct Bot{
     pub intents: HashMap<String, Vec<String>>,
     pub flows: HashMap<String, serde_json::Value>,
     pub model_name: String,
-    pub evaluation_metrics: Option<EvaluationMetrics>,// Figure the correct type for this
+    pub evaluation_metrics: Option<EvaluationMetrics>,
     pub industry: String,
     pub language: String,
     pub visible_on_community: bool,

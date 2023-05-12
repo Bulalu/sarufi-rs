@@ -1,22 +1,22 @@
-#[cfg_attr(test, macro_use)]
-extern crate log;
 
-use reqwest::{Client, ClientBuilder, header::HeaderMap, Response};
-use serde::de::DeserializeOwned;
+
+
+use reqwest::{Client, ClientBuilder, header::HeaderMap};
+
 
 pub use errors::ApiError;
 pub use bot::{Bot};
-use serde_json::{json, Map, Value};
-use std::{collections::HashMap, result};
+use serde_json::{ Value};
+use std::{collections::HashMap};
 use dotenv::dotenv;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::PathBuf;
 
 mod errors;
 mod utils;
 mod api;
 mod bot;
+mod test;
 
 use crate::api::SarufiApiError;
 
@@ -65,15 +65,9 @@ impl SarufiAPI {
 
     pub async fn get_all_bots(&self) -> Result<Vec<Bot>, ApiError> {
             let url = utils::api_url("/chatbots");
-
-            
             let response = self.client.get(&url).send().await?;
 
             if response.status().is_success() {
-                // let json_string = response.text().await?;
-                // let json_value: Value = serde_json::from_str(&json_string).unwrap();
-                // let pretty_json = serde_json::to_string_pretty(&json_value).unwrap();
-                // println!("{}", pretty_json);
                 let result = response.json::<Vec<Bot>>().await?;
                 Ok(result)
             } else {
@@ -84,14 +78,12 @@ impl SarufiAPI {
         }
      
         pub async fn _fetch_response(&self, bot_id: usize, chat_id: &str, message: &str, message_type: &str, channel: &str) -> Result<String, ApiError> {
-            let url = utils::api_url("/conversation");
+            let _url = utils::api_url("/conversation");
         
             if  channel == "whatsapp" {
-                let url = utils::api_url("/conversation/whatsapp");  
+                let _url = utils::api_url("/conversation/whatsapp");  
             }
 
-            // println!("URL: {:?}", url);
-        
             let mut data = HashMap::new();
             data.insert("bot_id".to_owned(), Value::Number(serde_json::Number::from(bot_id)));
             data.insert("chat_id".to_owned(), Value::String(chat_id.to_owned()));
@@ -99,7 +91,7 @@ impl SarufiAPI {
             data.insert("message_type".to_owned(), Value::String(message_type.to_owned()));
             data.insert("channel".to_owned(), Value::String(channel.to_owned()));
         
-            let response = self.client.post(&url).json(&Value::Object(data.into_iter().collect())).send().await?;
+            let response = self.client.post(&_url).json(&Value::Object(data.into_iter().collect())).send().await?;
         
             if response.status().is_success() {
                
@@ -126,7 +118,6 @@ impl SarufiAPI {
             Ok(response)
         }
 
-    
         pub async fn chat_status(&self, bot_id: usize, chat_id: &str) -> Result<String, ApiError> {
             let url = utils::api_url("/allchannels/status");
         
@@ -372,178 +363,3 @@ impl SarufiAPI {
 }
 
     
-#[cfg(test)]
-mod tests {
-
-    use std::time::Duration;
-
-    use super::*;
-
-    #[tokio::test]
-    async fn test_get_bot() {
-        dotenv().ok();
-        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        let api = SarufiAPI::new(api_key).unwrap();
-        let bot = api.get_bot(1145).await.unwrap();
-        
-        // println!("Result: {:?}", bot);
-        println!("Name: {:?}", bot.name);
-        println!("ID: {:?}", bot.id);
-        println!("Description: {:?}", bot.description);
-        println!("Industry: {:?}", bot.industry);
-      
-
-    }
-
-    #[tokio::test]
-    async fn test_get_all_bot() {
-        dotenv().ok();
-        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        let api = SarufiAPI::new(api_key).unwrap();
-        let bots = api.get_all_bots().await.unwrap();
-
-        // assert_eq!(bots[0].id, "My Rust Chatbot");
-
-        println!("Result: {:?}", bots.len());
-        
-    }
-
-    #[tokio::test]
-    async fn test_delete_all_bots() {
-        dotenv().ok();
-        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        let api = SarufiAPI::new(api_key).unwrap();
-        let bots = api.get_all_bots().await.unwrap();
-        
-        for bot in bots {
-            api.delete_bot(bot.id).await.unwrap();
-            println!("Deleted bot {}", bot.id);
-            tokio::time::sleep(Duration::from_secs(1)).await; // Delay for one second
-        }
-    }
-    
-    #[tokio::test]
-    async fn test_create_bot() -> Result<(), ApiError> {
-        dotenv().ok();
-        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        // println!("API_KEY: {:?}", api_key);
-        let api = SarufiAPI::new(api_key).unwrap();
-  
-        let name = "My Rusty Chatbot";
-        let description = Some("A rusty chatbot created using Sarufi API");
-        let industry = Some("Technology");
-        let flow: Option<HashMap<String, Value>> = None;
-        let intents: Option<HashMap<String, Vec<String>>> = None;
-        let webhook_url = Some("https://example.com/webhook");
-        let webhook_trigger_intents: Option<Vec<String>> = None;
-        let visible_on_community = Some(true);  
-
-        let bot = api.create_bot(
-                name,
-                description,
-                industry,
-                flow,
-                intents,
-                webhook_url,
-                webhook_trigger_intents,
-                visible_on_community,
-        ).await?;  
-
-        println!("Result: {:?}", bot);
-        println!("ID: {:?}", bot.id);
-        // println!("Description: {:?}", bot.description);
-        // println!("Industry: {:?}", bot.industry);
-        // println!("Webhook URL: {:?}", bot.webhook_url);
-        // println!("Webhook Trigger Intents: {:?}", bot.webhook_trigger_intents);
-        // println!("Visible on Community: {:?}", bot.visible_on_community);
-        // println!("Intents: {:?}", bot.intents);
-        // println!("Flows: {:?}", bot.flows);
-
-        assert_eq!(bot.name, name);
-        assert_eq!(bot.description, description.unwrap());
-        assert_eq!(bot.industry, industry.unwrap());
-
-        Ok(())
-
-       
-    }
-
-    #[tokio::test]
-    async fn test_update_bot() {
-        dotenv().ok();
-        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        // println!("API_KEY: {:?}", api_key);
-        let api = SarufiAPI::new(api_key).unwrap();
-
-        let id = 1112; // change this to your bot id
-
-        let prev_bot = api.get_bot(id).await.unwrap();
-        
-         
-        let name = "My Other Rusty Chatbot";
-        let description = Some("A rusty chatbot created using Sarufi API");
-        let industry = Some("Technology");
-        let flow: Option<HashMap<String, Value>> = None;
-        let intents: Option<HashMap<String, Vec<String>>> = None;
-        let webhook_url = Some("https://example.com/webhook");
-        let webhook_trigger_intents: Option<Vec<String>> = None;
-        let visible_on_community = Some(true);  
-
-        let bot = api.update_bot(
-                id,
-                name,
-                description,
-                industry,
-                flow,
-                intents,
-                webhook_url,
-                webhook_trigger_intents,
-                visible_on_community,
-        ).await.unwrap();
-
-        println!("Result: {:?}", bot.id);
-
-        assert_eq!(bot.name, name);
-        assert_eq!(bot.description, description.unwrap());
-        assert_eq!(bot.industry, industry.unwrap());
-
-    }
-
-    #[tokio::test]
-    async fn test_fetch () {
-        dotenv().ok();
-        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        let api = SarufiAPI::new(api_key).unwrap();
-
-
-        let bot_id = 1145; // change this to your bot id
-        let chat_id = "123456789";
-        let message = "Hello";
-        let message_type = "text";
-        let channel = "other";
-
-        let response = api._fetch_response(bot_id, chat_id, message, message_type, channel).await.unwrap();
-        println!("Result: {:?}", response);
-
-    }
-
-    #[tokio::test]
-    async fn test_chat () {
-        // Import the required types and traits
-        dotenv().ok();
-        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-        let api = SarufiAPI::new(api_key).unwrap();
-
-        let bot_id = 1145; // change this to your bot id
-        let response = api.chat(bot_id).await.unwrap();
-        println!("Result: {:?}", response.as_str());
-
-    
-    }
-
-
-
-
-}
-
-
