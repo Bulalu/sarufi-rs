@@ -114,25 +114,17 @@ impl SarufiAPI {
             }
         }
         
-        // pub async fn chat(&self, bot_id: usize) -> Result<String, ApiError> {
-        //     let chat_id = utils::generate_uuid().to_string();
-        //     let message = "Hello";
-        //     let message_type = "text";
-        //     let channel = "general";
+        pub async fn chat(&self, bot_id: usize) -> Result<String, ApiError> {
+            let chat_id = utils::generate_uuid().to_string();
+            println!("Chat ID: {:?}", chat_id);
+            let message = "Hello";
+            let message_type = "text";
+            let channel = "general";
 
-        //     let response = self._fetch_response(bot_id, &chat_id, message, message_type, channel).await.unwrap();
+            let response = self._fetch_response(bot_id, &chat_id, message, message_type, channel).await.unwrap();
 
-        //     if response.status().is_success() {
-        //         let json_string = response.text().await.unwrap();
-        //         let json_value: Value = serde_json::from_str(&json_string).unwrap();
-        //         let result = & json_value["message"][0];
-        //         Ok(result)
-
-        //     } else {
-        //         let error = response.json::<SarufiApiError>().await?;
-        //         Err(ApiError::GenericError(error.message()))
-        //     }
-        // }
+            Ok(response)
+        }
 
 
         pub async fn delete_bot(&self, id: usize) -> Result<(), ApiError> {
@@ -497,6 +489,21 @@ mod tests {
         // Print the UUID
         println!("Generated UUID: {}", my_uuid_str);
     }
+
+    #[tokio::test]
+    async fn test_chat () {
+        // Import the required types and traits
+        dotenv().ok();
+        let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
+        let api = SarufiAPI::new(api_key).unwrap();
+
+        let bot_id = 1145;
+        let response = api.chat(bot_id).await.unwrap();
+        println!("Result: {:?}", response.as_str());
+
+    
+    }
+
 
 
 
