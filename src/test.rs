@@ -8,7 +8,7 @@ use super::*;
 async fn test_get_bot() {
     dotenv().ok();
     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-    let api = SarufiAPI::new(api_key).unwrap();
+    let api = Sarufi::new(api_key).unwrap();
     let bot = api.get_bot(1205).await.unwrap();
     
     
@@ -24,7 +24,7 @@ async fn test_get_bot() {
 async fn test_get_all_bot() {
     dotenv().ok();
     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-    let api = SarufiAPI::new(api_key).unwrap();
+    let api = Sarufi::new(api_key).unwrap();
     let bots = api.get_all_bots().await.unwrap();
 
     // assert_eq!(bots[0].id, "My Rust Chatbot");
@@ -37,7 +37,7 @@ async fn test_get_all_bot() {
 // async fn test_delete_all_bots() {
 //     dotenv().ok();
 //     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-//     let api = SarufiAPI::new(api_key).unwrap();
+//     let api = Sarufi::new(api_key).unwrap();
 //     let bots = api.get_all_bots().await.unwrap();
     
 //     for bot in bots {
@@ -52,7 +52,7 @@ async fn test_create_bot() -> Result<(), ApiError> {
     dotenv().ok();
     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
     // println!("API_KEY: {:?}", api_key);
-    let api = SarufiAPI::new(api_key).unwrap();
+    let api = Sarufi::new(api_key).unwrap();
 
     let name = "My Rusty Chatbot";
     let description = Some("A rusty chatbot created using Sarufi API");
@@ -92,7 +92,7 @@ async fn test_update_bot() {
     dotenv().ok();
     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
     // println!("API_KEY: {:?}", api_key);
-    let api = SarufiAPI::new(api_key).unwrap();
+    let api = Sarufi::new(api_key).unwrap();
 
     let id = 1112; // change this to your bot id
 
@@ -132,7 +132,7 @@ async fn test_update_bot() {
 async fn test_fetch () {
     dotenv().ok();
     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-    let api = SarufiAPI::new(api_key).unwrap();
+    let api = Sarufi::new(api_key).unwrap();
 
 
     let bot_id = 1145; // change this to your bot id
@@ -151,7 +151,7 @@ async fn test_chat () {
     // Import the required types and traits
     dotenv().ok();
     let api_key = std::env::var("SARUFI_API_KEY").expect("API_KEY env required to run test");
-    let api = SarufiAPI::new(api_key).unwrap();
+    let api = Sarufi::new(api_key).unwrap();
 
     let bot_id = 1145; // change this to your bot id
     let response = api.chat(bot_id).await.unwrap();

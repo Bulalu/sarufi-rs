@@ -1,3 +1,4 @@
+
 use reqwest::{Client, ClientBuilder, header::HeaderMap};
 
 pub use errors::ApiError;
@@ -19,15 +20,15 @@ use crate::api::SarufiApiError;
 
 /// API struct. Exposes function to interact with the Sarufi API 🥷
 /// #[derive(Debug, Serialize, Deserialize)]
-pub struct SarufiAPI {
+pub struct Sarufi {
     client: Client,
 }
 
 
-impl SarufiAPI {
-    /// Creates a new instance of SarufiAPI using the provided api key
+impl Sarufi {
+    /// Creates a new instance of Sarufi using the provided api key
     /// this function panics if the api_key is empty 🤒
-    pub fn new<S: Into<String>>(api_key: S) -> Result<SarufiAPI, ApiError> {
+    pub fn new<S: Into<String>>(api_key: S) -> Result<Sarufi, ApiError> {
         let owned_key = api_key.into();
 
         utils::validate_keys(&owned_key)?;
@@ -39,7 +40,7 @@ impl SarufiAPI {
 
         let client = ClientBuilder::new().default_headers(default_headers).build()?;
 
-        Ok(SarufiAPI { client })
+        Ok(Sarufi { client })
     }
 
     
