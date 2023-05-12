@@ -32,6 +32,6 @@ cargo add sarufi
 >>>     bot.name
 >>>     bot.id
 ```
-Check out the test.rs for more examples
+Check out the file test.rs for more examples
 
 </samp>
