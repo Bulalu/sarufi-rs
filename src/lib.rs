@@ -14,7 +14,6 @@ use std::io::BufReader;
 use std::path::PathBuf;
 
 
-
 mod errors;
 mod utils;
 mod api;
@@ -85,7 +84,7 @@ impl SarufiAPI {
         pub async fn _fetch_response(&self, bot_id: usize, chat_id: &str, message: &str, message_type: &str, channel: &str) -> Result<String, ApiError> {
             let url = utils::api_url("/conversation");
         
-            if (channel == "whatsapp") {
+            if  channel == "whatsapp" {
                 println!("Whent to whatsapp");
                 let url = utils::api_url("/conversation/whatsapp");
                 println!("URL: {:?}", url)
@@ -115,6 +114,27 @@ impl SarufiAPI {
             }
         }
         
+        // pub async fn chat(&self, bot_id: usize) -> Result<String, ApiError> {
+        //     let chat_id = utils::generate_uuid().to_string();
+        //     let message = "Hello";
+        //     let message_type = "text";
+        //     let channel = "general";
+
+        //     let response = self._fetch_response(bot_id, &chat_id, message, message_type, channel).await.unwrap();
+
+        //     if response.status().is_success() {
+        //         let json_string = response.text().await.unwrap();
+        //         let json_value: Value = serde_json::from_str(&json_string).unwrap();
+        //         let result = & json_value["message"][0];
+        //         Ok(result)
+
+        //     } else {
+        //         let error = response.json::<SarufiApiError>().await?;
+        //         Err(ApiError::GenericError(error.message()))
+        //     }
+        // }
+
+
         pub async fn delete_bot(&self, id: usize) -> Result<(), ApiError> {
             let url = utils::api_url(&format!("/chatbot/{}", id));
             let response = self.client.delete(&url).send().await?;
@@ -465,6 +485,19 @@ mod tests {
         println!("Result: {:?}", response);
 
     }
+
+    #[tokio::test]
+    async fn test_uuid () {
+        // Import the required types and traits
+        use uuid::Uuid;
+            // Generate a random UUID
+        let my_uuid = Uuid::new_v4();
+        let my_uuid_str = my_uuid.to_string();
+
+        // Print the UUID
+        println!("Generated UUID: {}", my_uuid_str);
+    }
+
 
 
 }
